@@ -1,112 +1,113 @@
 <script setup lang="ts">
 
-import type { Room } from "colyseus.js";
-import { computed, onBeforeUnmount, provide, reactive, ref, shallowRef, watch, type Ref } from "vue";
-import { fetchDeck, type DeckDefinition } from "../../../server/fetchDeck";
-import { Msg, Response, PlayerStatus } from "../../../server/shared-enums";
-import type { State } from "../../../server/shared-schema";
+import { computed, onBeforeUnmount, provide, reactive, ref, watch, type Ref } from "vue";
+import { type ServerMessage, type ClientMessage, type GameStateSlice, PlayerStatus } from "../../server2/dtos";
 import Button from "./Button.vue";
 import HandView from "./HandView.vue";
 import PlayerList from "./PlayerList.vue";
 import SimpleHandView from "./SimpleHandView.vue";
 import Tabletop from "./Tabletop.vue";
+import { fetchDeck } from "@/fetchDeck.js";
+import type { DeckSync } from "@/DeckSync";
 
 export type CardType = { id: number, text: string };
 
 const props = defineProps<{
-	room: Room<State>;
+	ws: WebSocket;
 	username: string;
 }>();
 
-const stateHolder: Ref<State | null> = shallowRef(null);
+const state: Ref<GameStateSlice | null> = ref(null);
 const hand = reactive(new Set<number>());
-const deckDefinition: Ref<DeckDefinition | undefined> = ref(undefined);
+const deckSync: Ref<DeckSync | undefined> = ref(undefined);
 const cardsInRound = ref(1);
 let myId: Ref<string | undefined> = ref(undefined);
-let updateKey = ref(0);
 let useSimpleView = ref(localStorage.getItem("useSimpleView") === "true");
 
-provide("deckDefinition", deckDefinition);
+provide("deckSync", deckSync);
+
+async function updateDeck(url: string) {
+	deckSync.value = await fetchDeck(url);
+}
+
+function updateCardsInRound() {
+	const def = deckSync.value?.definition;
+	if (!def || !state.value?.call) return;
+	cardsInRound.value = def.callLengths[state.value.call] - 1;
+}
 
 const myStatus = computed(() => {
-	updateKey.value; // force update
-	if (stateHolder.value == null || myId.value == undefined) return undefined;
-	return stateHolder.value.players.get(myId.value)?.status;
+	if (state.value == null || myId.value == undefined) return undefined;
+	return state.value.status;
 });
 
 const started = computed(() => {
-	updateKey.value; // force update
-	return (stateHolder.value?.roundNumber ?? 0) <= 0;
+	return (state.value?.roundNumber ?? 0) <= 0;
 })
-
-watch(
-	() => { updateKey.value; return stateHolder.value?.deckUrl; },
-	async (newUrl) => {
-		if (newUrl == undefined) return;
-		deckDefinition.value = await fetchDeck(newUrl, fetch);
-	}
-);
-
-watch(updateKey, () => {
-	cardsInRound.value = stateHolder.value?.cardsInRound ?? 1;
-});
 
 watch(useSimpleView,
 	() => localStorage.setItem("useSimpleView", useSimpleView.value.toString())
 );
 
-const room = props.room;
-myId.value = room.sessionId;
-room.send(Response.name, { text: props.username });
+const ws = ref(props.ws as WebSocket | null);
 
-room.onStateChange(state => {
-	// Colyseus has its own state management, so we need a forced update
-	stateHolder.value = state;
-	updateKey.value++;
-});
+function send(message: ClientMessage) {
+	ws.value?.send(JSON.stringify(message));
+}
 
-const setHand = ({ hand: ids }: { hand: number[] }) => {
+ws.value!.onopen = () => {
+	console.log("connected");
+	setTimeout(() => {
+		send({ type: "join", username: props.username });
+	}, 300);
+}
+
+ws.value!.onclose = ev => {
+	console.log("disconnected", ev.code, ev.reason);
+	ws.value = null;
+}
+
+ws.value!.onmessage = ev => {
+	console.log("message", ev.data);
+	const message = JSON.parse(ev.data) as ServerMessage;
+	switch (message.type) {
+		case "init": {
+			myId.value = message.id;
+			updateDeck(message.deckUrl);
+			break;
+		}
+		case "state": {
+			state.value = message.state;
+			setHand(state.value);
+			updateCardsInRound();
+			break;
+		}
+		case "error": {
+			console.error(message.message);
+		}
+	}
+}
+
+const setHand = ({ hand: ids }: { hand?: number[] }) => {
+	if (!ids) return;
 	hand.clear();
 	for (const id of ids) hand.add(id);
 };
-room.onMessage(Msg.Deal, setHand);
-room.onMessage(Msg.DealPatch, setHand);
-
-room.onMessage(Msg.GiveCard,
-	({ hand: id }: { hand: number }) => hand.add(id)
-);
-
-room.onMessage(Msg.Over, ({winner}: {winner: string}) => {
-	const name = (winner === myId.value)
-		? "You"
-		: stateHolder.value?.players.get(winner)?.name;
-	alert(`Game over! ${name} won!`);
-});
-
-room.onMessage(Msg.NewRound, () => {});
-
-room.onError((code, message) => {
-	console.error(code, message);
-});
-
-room.onLeave(() => {
-	alert("You have been disconnected from the server.");
-});
 
 function startGame() {
-	room.send(Response.startGame);
+	send({ type: "start" });
 }
 
 function playCard(cards: number[]) {
-	room.send(Response.playCard, { cardArray: cards });
+	send({ type: "response", response: cards });
 	for (const card of cards) hand.delete(card);
 }
 
 function pickCard(index: number) {
-	room.send(Response.pickCard, { cardIndex: index });
+	send({ type: "pick", pickedIndex: index });
 }
 
-onBeforeUnmount(() => room.leave());
+onBeforeUnmount(() => ws.value?.close());
 
 </script>
 
@@ -117,24 +118,24 @@ onBeforeUnmount(() => room.leave());
 				<h2>Snazzy.</h2>
 				<p>The game has not started yet.</p>
 				<ul>
-					<li v-for="[id, player] in stateHolder?.players">
-						{{ player.name }} ({{ id }})
-						<span v-if="player.status === PlayerStatus.Timeout">t/o</span>
+					<li v-for="{ status, username } in state?.players" :key="username">
+						{{ username }}
+						<span v-if="status === PlayerStatus.Disconnected">t/o</span>
 					</li>
 				</ul>
 			</div>
-			<Button icon="play_circle" @click="startGame" v-if="stateHolder?.host === myId">Start</Button>
+			<Button icon="play_circle" @click="startGame" v-if="state?.isHost">Start</Button>
 		</div>
 	</template>
 	<template v-else>
 		<div class="margin-10">
-			<PlayerList v-if="stateHolder != null" :state-holder="stateHolder" :update-key="updateKey" />
+			<PlayerList v-if="state != null" :state="state" />
 		</div>
 
-		<div v-if="deckDefinition && stateHolder" class="center">
-			<Tabletop :my-status="myStatus" :update-key="updateKey" :state-holder="stateHolder" @pick-card="pickCard" />
+		<div v-if="deckSync && state" class="center">
+			<Tabletop :my-status="myStatus" :state="state" @pick-card="pickCard" />
 		</div>
-		<div v-if="deckDefinition">
+		<div v-if="deckSync">
 			<SimpleHandView v-if="useSimpleView" :cards-in-round="cardsInRound" :status="myStatus" :hand="hand" @play="playCard"></SimpleHandView>
 			<HandView v-else :cards-in-round="cardsInRound" :status="myStatus" :hand="hand" @play="playCard"></HandView>
 		</div>

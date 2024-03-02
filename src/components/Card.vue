@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DeckDefinition } from "@/DeckDefinition";
+import type { DeckSync } from "@/DeckSync";
 import { inject, type Ref } from "vue";
 
 const props = defineProps<{
@@ -10,28 +10,29 @@ const props = defineProps<{
 	hide?: boolean
 }>();
 
-const definition: Ref<DeckDefinition | undefined> = inject("deckDefinition")!;
+const deckSync: Ref<DeckSync | undefined> = inject("deckSync")!;
 
 function getText() {
 	if (props.hide) return "";
-	const def = definition.value;
-	if (def == undefined) return "";
+	const deck = deckSync.value?.deck;
+	if (deck == undefined) return "";
 	switch (props.type) {
 		case "black":
-			return def.calls[props.id].join(" ____ ");
+			return deck.calls[props.id].join(" ____ ");
 		case "white":
-			return def.responses[props.id][0];
-		case "played":
-			const list = def.calls[props.id];
+			return deck.responses[props.id][0];
+		case "played": {
+			const list = deck.calls[props.id];
 			if (!list || !props.interpolateIds || list.length-1 !== props.interpolateIds.length) {
 				return "ERROR";
 			}
 			return list.map((item, index) => {
 				const id = props.interpolateIds![index];
 				if (id === undefined) return item;
-				const response = def.responses[id][0];
+				const response = deck.responses[id][0];
 				return item + response;
 			}).join("");
+		}
 	}
 }
 

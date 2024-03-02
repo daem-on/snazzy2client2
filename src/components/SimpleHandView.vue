@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue';
-import { PlayerStatus } from '../../../server/shared-enums';
+import { PlayerStatus } from '../../server2/dtos';
 import Button from './Button.vue';
 import Card from './Card.vue';
 
@@ -16,10 +16,10 @@ const emit = defineEmits<{
 
 const picked: number[] = reactive([]);
 
-const cantPlay = computed(() => props.status !== PlayerStatus.Playing);
+const cantPlay = computed(() => props.status !== PlayerStatus.Responding);
 
 function pick(card: number) {
-	if (props.status !== PlayerStatus.Playing) return;
+	if (props.status !== PlayerStatus.Responding) return;
 	if (picked.includes(card)) picked.splice(picked.indexOf(card), 1);
 	else if (picked.length >= props.cardsInRound) return;
 	else picked.push(card);
@@ -48,11 +48,11 @@ function playCards() {
 			@click="pick(card)"
 		/>
 		<div v-if="cantPlay" class="blocker">
-			<template v-if="status === PlayerStatus.Czar">
+			<template v-if="status === PlayerStatus.Picking">
 				<div><span class="material-icons">event_seat</span></div>
 				You are the Card Czar.
 			</template>
-			<template v-if="status === PlayerStatus.Played">
+			<template v-if="status === PlayerStatus.Finished">
 				<div><span class="material-icons">done_all</span></div>
 				You have played this turn.
 			</template>

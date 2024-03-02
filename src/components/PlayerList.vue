@@ -1,32 +1,31 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { PlayerStatus } from '../../../server/shared-enums';
-import type { State } from '../../../server/shared-schema';
+import { PlayerStatus } from '../../server2/dtos';
+import type { GameStateSlice } from '../../server2/dtos.ts';
 
 const props = defineProps<{
-	stateHolder: State;
-	updateKey: number;
+	state: GameStateSlice;
 }>();
 
 const displayed = computed(() => {
-	props.updateKey; // force reactivity
-	const all = props.stateHolder.players.entries();
-	return Array.from(all).filter(e => e[1].status !== PlayerStatus.Timeout);
+	const all = props.state.players.entries();
+	return Array.from(all).filter(e => e[1].status !== PlayerStatus.Disconnected);
 });
 
 const statusIcons: Record<PlayerStatus, string> = {
-	[PlayerStatus.Playing]: "sms",
-	[PlayerStatus.Played]: "check",
-	[PlayerStatus.Timeout]: "signal_wifi_bad",
-	[PlayerStatus.Czar]: "event_seat"
+	[PlayerStatus.Responding]: "sms",
+	[PlayerStatus.Finished]: "check",
+	[PlayerStatus.Disconnected]: "signal_wifi_bad",
+	[PlayerStatus.Picking]: "event_seat",
+	[PlayerStatus.Waiting]: "schedule",
 };
 
 </script>
 
 <template>
-	<ul :key="updateKey">
-		<li v-for="[id, player] in displayed" :title="id" :key="id">
-			<span>{{ player.name }}</span>
+	<ul>
+		<li v-for="[id, player] in displayed" :title="id.toString()" :key="id">
+			<span>{{ player.username }}</span>
 			<span class="material-icons">
 				{{ statusIcons[player.status] }}
 			</span>

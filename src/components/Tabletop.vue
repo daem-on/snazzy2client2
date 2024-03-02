@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
-import { PlayerStatus } from "../../../server/shared-enums";
-import type { State } from "../../../server/shared-schema";
+import { computed, reactive, ref, watch } from "vue";
+import { PlayerStatus } from '../../server2/dtos';
+import type { GameStateSlice } from '../../server2/dtos.ts';
 import Card from "./Card.vue";
 
 const props = defineProps<{
-	stateHolder: State;
-	updateKey: number;
+	state: GameStateSlice;
 	myStatus?: PlayerStatus;
 }>();
 
@@ -15,23 +14,25 @@ const emit = defineEmits<{
 }>();
 
 const state = reactive({
-	callId: props.stateHolder.callId,
-	responses: props.stateHolder.responses,
-	reveal: props.stateHolder.reveal
+	call: props.state.call,
+	revealedResponses: props.state.revealedResponses,
+	reveal: props.state.revealedResponses != null
 });
 const localWinner = ref<number | undefined>(undefined);
 
-// update state when stateHolder changes
-watch(() => props.updateKey, () => {
-	if (props.stateHolder?.responses.toArray().some(r => r.winner))
-		localWinner.value = undefined;
-	state.callId = props.stateHolder.callId;
-	state.responses = props.stateHolder.responses;
-	state.reveal = props.stateHolder.reveal;
+watch(() => props.state, () => {
+	if (props.state.lastWinner) localWinner.value = undefined;
+	state.call = props.state.call;
+	state.revealedResponses = props.state.revealedResponses;
+	state.reveal = props.state.revealedResponses != null;
 });
 
+const realWinner = computed(() => 
+	props.state.lastWinner?.revealIndex
+);
+
 function pickCard(index: number) {
-	if (props.myStatus !== PlayerStatus.Czar || !props.stateHolder.reveal) return;
+	if (props.myStatus !== PlayerStatus.Picking || !state.reveal) return;
 	emit("pickCard", index);
 	localWinner.value = index;
 }
@@ -40,17 +41,17 @@ function pickCard(index: number) {
 
 <template>
 	<div id="tabletop" class="cardrow">
-		<Card v-if="state.callId != undefined" :id="state.callId" type="black" />
-		<div v-if="state.responses.length" class="innerrow">
+		<Card v-if="state.call != undefined" :id="state.call" type="black" />
+		<div v-if="state.revealedResponses?.length" class="innerrow">
 			<Card
-				v-for="(response, index) in state.responses"
+				v-for="(response, index) in state.revealedResponses"
 				class="white card"
 				@click="pickCard(index)"
-				:key="response.playedBy"
-				:id="state.callId"
-				:winner="response.winner || localWinner === index"
-				:interpolate-ids="response.cardid.toArray()"
-				:hide="state.reveal == false"
+				:key="index"
+				:id="state.call!"
+				:winner="realWinner === index || localWinner === index"
+				:interpolate-ids="response"
+				:hide="false"
 				type="played"
 				/>
 		</div>

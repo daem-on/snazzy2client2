@@ -1,63 +1,27 @@
 <script setup lang="ts">
-import type { Room } from "colyseus.js";
-import { ref, shallowRef } from "vue";
-import type { State } from "../../server/shared-schema";
-import Button from "./components/Button.vue";
-import type { CreateRoomOptions } from "./components/CreateForm.vue";
-import CreateForm from "./components/CreateForm.vue";
+import { ref } from "vue";
+import type { RoomOptions } from "./components/RoomForm.vue";
+import RoomForm from "./components/RoomForm.vue";
 import Game from "./components/Game.vue";
-import { checkRoomExists, create, join } from "./connect";
+import { join } from "./connect";
 
-enum ExistsState { Checking, ServerOffline, Exists, DoesNotExist }
-
-const room = shallowRef<Room<State> | null>(null);
-const exists = ref<ExistsState>(ExistsState.Checking);
+const ws = ref<WebSocket | null>(null);
 const username = ref("Username");
 const connecting = ref(false);
 
-const hashExists = window.location.hash.length > 1;
-const roomId = window.location.hash.slice(1);
-
 async function init() {
-	if (hashExists) {
-		try {
-			exists.value = await checkRoomExists(roomId) ? ExistsState.Exists : ExistsState.DoesNotExist;
-		} catch (e) {
-			if (e instanceof ProgressEvent) exists.value = ExistsState.ServerOffline;
-			else throw e;
-		}
-	} else {
-		exists.value = ExistsState.DoesNotExist;
-	}
+	
 }
 
-async function joinIfExists() {
-	if (exists.value === ExistsState.Exists && !connecting.value) {
-		try {
-			connecting.value = true;
-			room.value = await join(roomId);
-		} finally {
-			connecting.value = false;
-		}
-	}
-}
-
-function joinSubmit() {
-	joinIfExists();
-	return false;
-}
-
-async function createRoom(options: CreateRoomOptions) {
+async function joinRoom(options: RoomOptions) {
 	if (connecting.value) return;
 	try {
 		connecting.value = true;
-		room.value = await create(options);
-		exists.value = ExistsState.Exists;
+		ws.value = await join(options.title, options.deck);
 		window.location.hash = options.title;
 	} finally {
 		connecting.value = false;
 	}
-	
 }
 
 init();
@@ -65,38 +29,19 @@ init();
 </script>
 
 <template>
-	<template v-if="exists === ExistsState.Checking">Checking...</template>
-	<template v-else-if="exists === ExistsState.DoesNotExist">
+	<template v-if="ws == null">
 		<div class="page">
-			<h1 v-if="hashExists">{{ roomId }} does not exist</h1>
-			<h1 v-else>Create room</h1>
-			<label>
-				Username
-				<input type="text" v-model="username" />
-			</label>
-			<CreateForm @create="createRoom"></CreateForm>
+			<form>
+				<label>
+					Username
+					<input type="text" v-model="username" />
+				</label>
+			</form>
+			<RoomForm @submit="joinRoom"></RoomForm>
 		</div>
 	</template>
-	<template v-else-if="exists === ExistsState.Exists">
-		<template v-if="room == null">
-			<div class="page">
-				<form @submit="joinSubmit">
-					<label>
-						Username
-						<input type="text" v-model="username" />
-					</label>
-					<Button icon="done" black @click="joinIfExists">Join</Button>
-				</form>
-			</div>
-		</template>
-		<template v-else>
-			<Game :room="room" :username="username"></Game>
-		</template>
-	</template>
-	<template v-else-if="exists === ExistsState.ServerOffline">
-		<div class="page">
-			<h1>Server offline</h1>
-		</div>
+	<template v-else>
+		<Game :ws="ws" :username="username"></Game>
 	</template>
 </template>
 
