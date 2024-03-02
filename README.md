@@ -1,26 +1,46 @@
-![logo](https://i.imgur.com/8wnwx4g.png)
-## An online Cards Agains Humanity implementation
-![main screenshot](https://i.imgur.com/F7gIAzc.png)
+# client2
 
-This game is an implementation of Cards Against Humanity, much like the popular <i>Pretend You're Xyzzy</i>.
+This template should help get you started developing with Vue 3 in Vite.
 
-### Main features:
-- Beautiful, skeumorphic user interface
-- Streamlined UX: create and join games with just a URL
-- Self-hosted
-- Supports multiple decks (including custom ones)
+## Recommended IDE Setup
 
-## Installation
-This game is designed to be self-hosted, you need a host computer that others can connect to (usually involves port-forwarding). You can download packaged binaries of the server from the *releases* page. To run it, you **have to** have a deck downloaded to use in the game. Downloaders from CardCast and PTYX are available, and the U.S. deck is also on the releases page.
+[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
 
-You also need a configuration file, there is a sample one on the releases page.
+## Type Support for `.vue` Imports in TS
 
-Afterwards, you can run the server in the same directory as these, and start the game in your browser.
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
 
-## Running, building from source
-The server can also be started from source, with ts-node. After cloning this repo, run yarn in the `server/` directory, then run `yarn start`.
+If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
 
-You can transpile to JS with `yarn tsc` and also package to binaries with `yarn build`. 
+1. Disable the built-in TypeScript Extension
+    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
+    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
+2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
 
-## Contributing
-You can.
+## Customize configuration
+
+See [Vite Configuration Reference](https://vitejs.dev/config/).
+
+## Project Setup
+
+```sh
+npm install
+```
+
+### Compile and Hot-Reload for Development
+
+```sh
+npm run dev
+```
+
+### Type-Check, Compile and Minify for Production
+
+```sh
+npm run build
+```
+
+### Lint with [ESLint](https://eslint.org/)
+
+```sh
+npm run lint
+```
