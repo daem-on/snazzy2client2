@@ -9,6 +9,7 @@ import SimpleHandView from "./SimpleHandView.vue";
 import Tabletop from "./Tabletop.vue";
 import { fetchDeck } from "@/fetchDeck.js";
 import type { DeckSync } from "@/DeckSync";
+import logoUrl from "@/assets/cards-logo.svg";
 
 export type CardType = { id: number, text: string };
 
@@ -61,9 +62,6 @@ function send(message: ClientMessage) {
 
 ws.value!.onopen = () => {
 	console.log("connected");
-	setTimeout(() => {
-		send({ type: "join", username: props.username });
-	}, 300);
 }
 
 ws.value!.onclose = ev => {
@@ -79,6 +77,7 @@ ws.value!.onmessage = ev => {
 		case "init": {
 			myId.value = message.id;
 			updateDeck(message.deckUrl);
+			send({ type: "join", username: props.username });
 			break;
 		}
 		case "state": {
@@ -120,7 +119,10 @@ onBeforeUnmount(() => ws.value?.close());
 	<template v-if="started">
 		<div class="column">
 			<div class="waiting">
-				<h2>Snazzy.</h2>
+				<h2>
+					<img :src="logoUrl" alt="Logo">
+					Snazzy.
+				</h2>
 				<p>The game has not started yet.</p>
 				<ul>
 					<li v-for="{ status, username } in state?.players" :key="username">
