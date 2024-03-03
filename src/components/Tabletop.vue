@@ -32,7 +32,11 @@ const realWinner = computed(() =>
 );
 
 function pickCard(index: number) {
-	if (props.myStatus !== PlayerStatus.Picking || !state.reveal) return;
+	if (
+		props.myStatus !== PlayerStatus.Picking
+		|| !state.reveal
+		|| realWinner.value != null
+	) return;
 	emit("pickCard", index);
 	localWinner.value = index;
 }
