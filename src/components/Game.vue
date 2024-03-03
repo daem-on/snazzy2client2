@@ -17,6 +17,10 @@ const props = defineProps<{
 	username: string;
 }>();
 
+const emit = defineEmits<{
+	(e: "disconnect"): void
+}>();
+
 const state: Ref<GameStateSlice | null> = ref(null);
 const hand = reactive(new Set<number>());
 const deckSync: Ref<DeckSync | undefined> = ref(undefined);
@@ -65,6 +69,7 @@ ws.value!.onopen = () => {
 ws.value!.onclose = ev => {
 	console.log("disconnected", ev.code, ev.reason);
 	ws.value = null;
+	emit("disconnect");
 }
 
 ws.value!.onmessage = ev => {

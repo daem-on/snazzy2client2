@@ -6,16 +6,27 @@ function getServerUrl(): URL {
 	if (buildOverride) return new URL(buildOverride);
 
 	const url = new URL(window.location.href);
-	url.port = "2567";
 	url.search = "";
-	url.protocol = url.protocol.replace("http", "ws");
 	url.hash = "";
 	return url;
 }
 
 export async function join(name: string, deckUrl: string) {
 	const url = getServerUrl();
-	url.pathname = `/api/games/${name}`
+	url.protocol = url.protocol.replace("http", "ws");
+	url.pathname = `/games/${name}`
 	url.searchParams.append("deck", deckUrl);
 	return new WebSocket(url);
+}
+
+export async function checkOnline(): Promise<boolean> {
+	const url = getServerUrl();
+	url.pathname = `/health`;
+	try {
+		const response = await fetch(url);
+		const result = await response.text()
+		return result === "ok";
+	} catch {
+		return false;
+	}
 }
