@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { computed, onBeforeUnmount, provide, reactive, ref, watch, type Ref } from "vue";
+import { computed, onBeforeUnmount, provide, reactive, ref, shallowRef, watch } from "vue";
 import { type ServerMessage, type ClientMessage, type GameStateSlice, PlayerStatus } from "../../server2/dtos";
 import Button from "./Button.vue";
 import HandView from "./HandView.vue";
@@ -10,24 +10,25 @@ import Tabletop from "./Tabletop.vue";
 import { fetchDeck } from "@/fetchDeck.js";
 import type { DeckSync } from "@/DeckSync";
 import logoUrl from "@/assets/cards-logo.svg";
+import type { RoomOptions } from "./RoomForm.vue";
+import { join } from "@/connect";
 
 export type CardType = { id: number, text: string };
 
 const props = defineProps<{
-	ws: WebSocket;
-	username: string;
+	options: RoomOptions;
 }>();
 
 const emit = defineEmits<{
-	(e: "disconnect"): void
+	(e: "quit"): void
 }>();
 
-const state: Ref<GameStateSlice | null> = ref(null);
+const state = ref<GameStateSlice | null>(null);
 const hand = reactive(new Set<number>());
-const deckSync: Ref<DeckSync | undefined> = ref(undefined);
+const deckSync = ref<DeckSync | undefined>(undefined);
 const cardsInRound = ref(1);
-let myId: Ref<string | undefined> = ref(undefined);
-let useSimpleView = ref(localStorage.getItem("useSimpleView") === "true");
+const token = ref<string | null>(null);
+const useSimpleView = ref(localStorage.getItem("useSimpleView") === "true");
 
 provide("deckSync", deckSync);
 
@@ -42,42 +43,30 @@ function updateCardsInRound() {
 }
 
 const myStatus = computed(() => {
-	if (state.value == null || myId.value == undefined) return undefined;
+	if (state.value == null) return undefined;
 	return state.value.status;
 });
 
 const started = computed(() => {
-	return (state.value?.roundNumber ?? 0) <= 0;
+	return (state.value?.roundNumber ?? 0) > 0;
 })
 
 watch(useSimpleView,
 	() => localStorage.setItem("useSimpleView", useSimpleView.value.toString())
 );
 
-const ws = ref(props.ws as WebSocket | null);
+const ws = shallowRef<WebSocket | null>(null);
 
 function send(message: ClientMessage) {
 	ws.value?.send(JSON.stringify(message));
 }
 
-ws.value!.onopen = () => {
-	console.log("connected");
-}
-
-ws.value!.onclose = ev => {
-	console.log("disconnected", ev.code, ev.reason);
-	ws.value = null;
-	emit("disconnect");
-}
-
-ws.value!.onmessage = ev => {
-	console.log("message", ev.data);
-	const message = JSON.parse(ev.data) as ServerMessage;
+function handleMessage(message: ServerMessage) {
 	switch (message.type) {
 		case "init": {
-			myId.value = message.id;
+			token.value = message.token;
 			updateDeck(message.deckUrl);
-			send({ type: "join", username: props.username });
+			send({ type: "join", username: props.options.username });
 			break;
 		}
 		case "state": {
@@ -91,6 +80,37 @@ ws.value!.onmessage = ev => {
 		}
 	}
 }
+
+watch(ws, value => {
+	if (!value) return;
+
+	value.onopen = () => {
+		console.log("connected");
+	}
+	
+	value.onclose = ev => {
+		console.log("disconnected", ev.code, ev.reason);
+		tryConnect();
+	}
+	
+	value.onmessage = ev => {
+		console.log("message", ev.data);
+		const message = JSON.parse(ev.data) as ServerMessage;
+		handleMessage(message);
+	}
+});
+
+async function tryConnect() {
+	try {
+		ws.value = await join(props.options.title, props.options.deck, token.value ?? undefined);
+		window.location.hash = props.options.title;
+	} catch (e) {
+		console.error(e);
+		emit("quit");
+	}
+}
+
+tryConnect();
 
 const setHand = ({ hand: ids }: { hand?: number[] }) => {
 	if (!ids) return;
@@ -116,7 +136,7 @@ onBeforeUnmount(() => ws.value?.close());
 </script>
 
 <template>
-	<template v-if="started">
+	<template v-if="!started">
 		<div class="column">
 			<div class="waiting">
 				<h2>

@@ -11,11 +11,12 @@ function getServerUrl(): URL {
 	return url;
 }
 
-export async function join(name: string, deckUrl: string) {
+export async function join(name: string, deckUrl: string, token?: string) {
 	const url = getServerUrl();
 	url.protocol = url.protocol.replace("http", "ws");
 	url.pathname = `/games/${name}`
 	url.searchParams.append("deck", deckUrl);
+	if (token) url.searchParams.append("token", token);
 	return new WebSocket(url);
 }
 
