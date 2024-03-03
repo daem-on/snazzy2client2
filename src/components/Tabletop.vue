@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
 import { PlayerStatus } from '../../server2/dtos';
-import type { GameStateSlice } from '../../server2/dtos.ts';
+import type { GameStateSlice } from '../../server2/dtos';
 import Card from "./Card.vue";
 
 const props = defineProps<{
