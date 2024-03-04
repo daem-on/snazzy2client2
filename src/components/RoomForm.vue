@@ -6,6 +6,8 @@ const emit = defineEmits<{
 	(e: "submit", options: RoomOptions): void
 }>();
 
+const lastDeckKey = "lastDeck";
+
 const defaultName = 
 	window.location.hash.slice(1)
 	|| "Room" + Math.floor(Math.random() * 1000);
@@ -15,27 +17,28 @@ export type RoomOptions = {
 	title: string,
 	deck: string,
 	dealNumber?: number,
-	winLimit?: number,
 };
 
 const options: RoomOptions = reactive({
 	username: "Username",
 	title: defaultName,
-	deck: "https://gist.githubusercontent.com/daem-on/82632a44fece3017f45e4feb5b87bc4a/raw/494df51787a05fbe73b9b023f864fe3f0c7ba595/12b.json",
+	deck: localStorage.getItem(lastDeckKey) || "",
 	dealNumber: undefined,
-	winLimit: undefined,
 })
 
 function submit() {
-	// fix v-model empty numbers
+	localStorage.setItem(lastDeckKey, options.deck);
 	emit("submit", {
 		username: options.username,
 		title: options.title,
 		deck: options.deck,
 		dealNumber: options.dealNumber || undefined,
-		winLimit: options.winLimit || undefined,
 	});
 }
+
+const predefinedDecks: Map<string, string> = new Map([
+	["Base Set", "https://gist.githubusercontent.com/daem-on/68db4cdd7abc6b738ee5059ba9a60e17/raw/4c268b9399267606e4dc41bc8be9d3a18bff0ef1/us.json"],
+]);
 
 </script>
 
@@ -52,15 +55,16 @@ function submit() {
 			</label>
 			<label>
 				Deck URL
+				<div class="deck-presets">
+					<button type="button" v-for="[name, url] in predefinedDecks" @click="options.deck = url" :key="name">
+						{{ name }}
+					</button>
+				</div>
 				<input type="text" v-model="options.deck" />
 			</label>
 			<label>
 				Deal Number
 				<input type="number" v-model.number="options.dealNumber" />
-			</label>
-			<label>
-				Win Limit
-				<input type="number" v-model.number="options.winLimit" />
 			</label>
 		</form>
 	</div>
@@ -83,6 +87,23 @@ function submit() {
 .room-options label {
 	display: flex;
 	flex-direction: column;
+}
+
+.deck-presets {
+	display: flex;
+	flex-direction: row;
+	gap: 0.5rem;
+	margin: 0.5rem 0;
+	max-width: 100%;
+	overflow-x: auto;
+}
+
+.deck-presets button {
+	padding: 0.5rem;
+	border-radius: 0.5rem;
+	border: 1px solid #ccc;
+	cursor: pointer;
+	white-space: nowrap;
 }
 
 </style>

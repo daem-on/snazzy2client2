@@ -23,12 +23,14 @@ const emit = defineEmits<{
 	(e: "quit"): void
 }>();
 
+const useSimpleViewKey = "useSimpleView";
+
 const state = ref<GameStateSlice | null>(null);
 const hand = reactive(new Set<number>());
 const deckSync = ref<DeckSync | undefined>(undefined);
 const cardsInRound = ref(1);
 const token = ref<string | null>(null);
-const useSimpleView = ref(localStorage.getItem("useSimpleView") === "true");
+const useSimpleView = ref(localStorage.getItem(useSimpleViewKey) === "true");
 
 provide("deckSync", deckSync);
 
@@ -52,7 +54,7 @@ const started = computed(() => {
 })
 
 watch(useSimpleView,
-	() => localStorage.setItem("useSimpleView", useSimpleView.value.toString())
+	() => localStorage.setItem(useSimpleViewKey, useSimpleView.value.toString())
 );
 
 const ws = shallowRef<WebSocket | null>(null);
