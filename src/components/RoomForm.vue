@@ -37,7 +37,7 @@ function submit() {
 }
 
 const predefinedDecks: Map<string, string> = new Map([
-	["Base Set", "https://gist.githubusercontent.com/daem-on/68db4cdd7abc6b738ee5059ba9a60e17/raw/4c268b9399267606e4dc41bc8be9d3a18bff0ef1/us.json"],
+	["Base Set", "https://gist.githubusercontent.com/daem-on/68db4cdd7abc6b738ee5059ba9a60e17/raw/21662cb4a800b61f24c89d293c6aa1508cec6d13/us.json"],
 ]);
 
 </script>
