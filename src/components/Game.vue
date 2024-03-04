@@ -102,7 +102,12 @@ watch(ws, value => {
 
 async function tryConnect() {
 	try {
-		ws.value = await join(props.options.title, props.options.deck, token.value ?? undefined);
+		ws.value = await join({
+			name: props.options.title,
+			deckUrl: props.options.deck,
+			handSize: props.options.dealNumber,
+			token: token.value ?? undefined,
+		});
 		window.location.hash = props.options.title;
 	} catch (e) {
 		console.error(e);
