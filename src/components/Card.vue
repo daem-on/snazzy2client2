@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DeckSync } from "@/DeckSync";
+import type { DeckClientState } from "server2/dtos";
 import { inject, type Ref } from "vue";
 
 const props = defineProps<{
@@ -10,7 +10,7 @@ const props = defineProps<{
 	hide?: boolean
 }>();
 
-const deckSync: Ref<DeckSync | undefined> = inject("deckSync")!;
+const deckSync: Ref<DeckClientState | undefined> = inject("deckSync")!;
 
 function getText() {
 	if (props.hide) return "";

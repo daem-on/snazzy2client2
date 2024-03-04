@@ -1,14 +1,13 @@
 <script setup lang="ts">
 
 import { computed, onBeforeUnmount, provide, reactive, ref, shallowRef, watch } from "vue";
-import { type ServerMessage, type ClientMessage, type GameStateSlice, PlayerStatus } from "../../server2/dtos";
+import { type ServerMessage, type ClientMessage, type GameStateSlice, PlayerStatus, type DeckClientState } from "../../server2/dtos";
 import Button from "./Button.vue";
 import HandView from "./HandView.vue";
 import PlayerList from "./PlayerList.vue";
 import SimpleHandView from "./SimpleHandView.vue";
 import Tabletop from "./Tabletop.vue";
 import { fetchDeck } from "@/fetchDeck.js";
-import type { DeckSync } from "@/DeckSync";
 import logoUrl from "@/assets/cards-logo.svg";
 import type { RoomOptions } from "./RoomForm.vue";
 import { join } from "@/connect";
@@ -27,7 +26,7 @@ const useSimpleViewKey = "useSimpleView";
 
 const state = ref<GameStateSlice | null>(null);
 const hand = reactive(new Set<number>());
-const deckSync = ref<DeckSync | undefined>(undefined);
+const deckSync = ref<DeckClientState | undefined>(undefined);
 const cardsInRound = ref(1);
 const token = ref<string | null>(null);
 const useSimpleView = ref(localStorage.getItem(useSimpleViewKey) === "true");
