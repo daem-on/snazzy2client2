@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html {
 	background-color: #e6a07a;
 	background-image: url("@/assets/wood-pattern.png");

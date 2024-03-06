@@ -61,6 +61,7 @@ function getText() {
 
 	transform: rotateY(0deg);
 	transition: transform 0.2s ease-in-out;
+	box-sizing: content-box;
 }
 
 .card p {

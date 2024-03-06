@@ -2,7 +2,7 @@
 
 import { computed, onBeforeUnmount, provide, reactive, ref, shallowRef, watch } from "vue";
 import { type ServerMessage, type ClientMessage, type GameStateSlice, PlayerStatus, type DeckClientState } from "../../server2/dtos";
-import Button from "./Button.vue";
+import Button from "./infrastructure/Button.vue";
 import HandView from "./HandView.vue";
 import PlayerList from "./PlayerList.vue";
 import SimpleHandView from "./SimpleHandView.vue";
@@ -82,16 +82,27 @@ function handleMessage(message: ServerMessage) {
 	}
 }
 
+const terminalCloseCodes = [1001, 1008];
+let retries = 10;
+
 watch(ws, value => {
 	if (!value) return;
 
 	value.onopen = () => {
 		console.log("connected");
 	}
+
+	value.onerror = ev => {
+		console.error("error", ev);
+	}
 	
 	value.onclose = ev => {
 		console.log("disconnected", ev.code, ev.reason);
-		tryConnect();
+		if (terminalCloseCodes.includes(ev.code) || retries-- <= 0) {
+			emit("quit");
+			return;
+		}
+		setTimeout(() => tryConnect(), 1000);
 	}
 	
 	value.onmessage = ev => {
@@ -217,3 +228,4 @@ onBeforeUnmount(() => ws.value?.close());
 	padding: 4px 0;
 }
 </style>
+./infrastructure/Button.vue

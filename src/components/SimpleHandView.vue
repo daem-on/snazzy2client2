@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue';
 import { PlayerStatus } from '../../server2/dtos';
-import Button from './Button.vue';
+import Button from './infrastructure/Button.vue';
 import Card from './Card.vue';
 
 const props = defineProps<{
@@ -106,4 +106,4 @@ function playCards() {
 	gap: 10px;
 	margin: 10px;
 }
-</style>
+</style>./infrastructure/Button.vue

@@ -3,7 +3,7 @@
 import type { DroppableDroppedEvent, DroppableStartEvent, DroppableStopEvent } from "@shopify/draggable";
 import { reactive, watch } from "vue";
 import { PlayerStatus } from '../../server2/dtos';
-import Button from "./Button.vue";
+import Button from "./infrastructure/Button.vue";
 import CardContainer from "./CardContainer.vue";
 
 const props = defineProps<{
@@ -177,4 +177,4 @@ function playPicked() {
 	text-align: center;
 	margin: 16px;
 }
-</style>
+</style>./infrastructure/Button.vue

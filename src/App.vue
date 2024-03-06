@@ -21,7 +21,7 @@ init();
 	<div v-if="isOnline === false">Server could not be reached.</div>
 	<template v-if="isOnline">
 		<template v-if="options == null">
-			<div class="page">
+			<div class="mx-auto mt-2 bg-white p-4 max-w-80">
 				<RoomForm @submit="options = $event"></RoomForm>
 			</div>
 		</template>
@@ -30,24 +30,3 @@ init();
 		</template>
 	</template>
 </template>
-
-<style scoped>
-.page {
-	background: white;
-	padding: 1em;
-	max-width: 20rem;
-	margin: 0 auto;
-}
-
-input {
-	margin: 0.5rem 0;
-	padding: 0.5rem;
-	border-radius: 0.5rem;
-	border: 1px solid #ccc;
-}
-
-label {
-	display: flex;
-	flex-direction: column;
-}
-</style>

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
-import Button from './Button.vue';
+import Button from './infrastructure/Button.vue';
+import Input from './infrastructure/Input.vue';
+import logoUrl from "@/assets/cards-logo.svg";
 
 const emit = defineEmits<{
 	(e: "submit", options: RoomOptions): void
@@ -43,67 +45,32 @@ const predefinedDecks: Map<string, string> = new Map([
 </script>
 
 <template>
+	<h2 class="text-4xl text-center mb-3">
+		<img class="inline size-11" :src="logoUrl" alt="Logo">
+		Snazzy
+	</h2>
 	<div class="room-options">
 		<form @submit="submit">
-			<label>
+			<Input type="text" v-model="options.username" required>
 				Username
-				<input type="text" v-model="options.username" />
-			</label>
-			<label>
+			</Input>
+			<Input type="text" v-model="options.title" required>
 				Title
-				<input type="text" v-model="options.title" />
-			</label>
-			<label for="deckurl">
+			</Input>
+			<Input type="url" v-model="options.deck">
 				Deck URL
-			</label>
-				<div class="deck-presets">
-					<button type="button" v-for="[name, url] in predefinedDecks" @click="options.deck = url" :key="name">
-						{{ name }}
-					</button>
-				</div>
-			<input id="deckurl" type="text" v-model="options.deck" />
-			<label>
+			</Input>
+			<div class="flex flex-row gap-2 my-2">
+				<button class="p-2 rounded-lg bg-gray-100 border-2 border-gray-300" type="button" v-for="[name, url] in predefinedDecks" @click="options.deck = url" :key="name">
+					{{ name }}
+				</button>
+			</div>
+			<Input type="number" v-model.number="options.dealNumber" placeholder="7" min="1">
 				Deal Number
-				<input type="number" v-model.number="options.dealNumber" />
-			</label>
+			</Input>
+			<div class="flex justify-center">
+				<Button icon="login" black type="submit">Join</Button>
+			</div>
 		</form>
 	</div>
-	<Button icon="login" black @click="submit">Join</Button>
 </template>
-
-<style scoped>
-.room-options {
-	display: flex;
-	flex-direction: column;
-}
-
-.room-options input {
-	margin: 0.5rem 0;
-	padding: 0.5rem;
-	border-radius: 0.5rem;
-	border: 1px solid #ccc;
-}
-
-.room-options label {
-	display: flex;
-	flex-direction: column;
-}
-
-.deck-presets {
-	display: flex;
-	flex-direction: row;
-	gap: 0.5rem;
-	margin: 0.5rem 0;
-	max-width: 100%;
-	overflow-x: auto;
-}
-
-.deck-presets button {
-	padding: 0.5rem;
-	border-radius: 0.5rem;
-	border: 1px solid #ccc;
-	cursor: pointer;
-	white-space: nowrap;
-}
-
-</style>
