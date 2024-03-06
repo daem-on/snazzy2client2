@@ -53,15 +53,15 @@ const predefinedDecks: Map<string, string> = new Map([
 				Title
 				<input type="text" v-model="options.title" />
 			</label>
-			<label>
+			<label for="deckurl">
 				Deck URL
+			</label>
 				<div class="deck-presets">
 					<button type="button" v-for="[name, url] in predefinedDecks" @click="options.deck = url" :key="name">
 						{{ name }}
 					</button>
 				</div>
-				<input type="text" v-model="options.deck" />
-			</label>
+			<input id="deckurl" type="text" v-model="options.deck" />
 			<label>
 				Deal Number
 				<input type="number" v-model.number="options.dealNumber" />
