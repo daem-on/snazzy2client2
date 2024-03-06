@@ -38,7 +38,7 @@ const statusIcons: Record<PlayerStatus, string> = {
 ul {
 	display: flex;
 	flex-direction: row;
-	justify-content: start;
+	justify-content: flex-start;
 	align-items: center;
 	width: 100%;
 	overflow-x: auto;

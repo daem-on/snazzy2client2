@@ -161,7 +161,7 @@ function playPicked() {
 .buttons {
 	display: flex;
 	flex-direction: column;
-	align-items: end;
+	align-items: flex-end;
 	justify-content: center;
 	gap: 10px;
 }

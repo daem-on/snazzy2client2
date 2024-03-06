@@ -26,7 +26,7 @@ button {
 	padding: 10px 16px;
 	display: flex;
 	flex-direction: row;
-	justify-content: start;
+	justify-content: flex-start;
 	align-items: center;
 	gap: 4px;
 }

@@ -69,7 +69,7 @@ function pickCard(index: number) {
 	/* Bad for accessibility, good for looks */
 	outline: none;
 	flex-wrap: nowrap;
-	justify-content: start;
+	justify-content: flex-start;
 	overflow-x: auto;
 }
 
