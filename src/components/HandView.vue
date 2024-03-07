@@ -5,6 +5,7 @@ import { reactive, watch } from "vue";
 import { PlayerStatus } from '../../server2/dtos';
 import Button from "./infrastructure/Button.vue";
 import CardContainer from "./CardContainer.vue";
+import BlockerDisplay from "./BlockerDisplay.vue";
 
 const props = defineProps<{
 	hand: Set<number>,
@@ -117,64 +118,21 @@ function playPicked() {
 </script>
 
 <template>
-	<div class="cant-play" v-if="status !== PlayerStatus.Responding">
+	<div v-if="status !== PlayerStatus.Responding" class="bg-white p-5 rounded-lg text-center m-4">
 		<p>
-			<template v-if="status === PlayerStatus.Picking">
-				<div><span class="material-icons">event_seat</span></div>
-				You are the Card Czar.
-			</template>
-			<template v-if="status === PlayerStatus.Finished">
-				<div><span class="material-icons">done_all</span></div>
-				You have played this turn.
-			</template>
+			<BlockerDisplay :status="status" />
 		</p>
 	</div>
 	<template v-else>
 		<vue-droppable :options="options" @droppable:start="start" @droppable:dropped="dropped" @droppable:returned="returned" @droppable:stop="stop">
-			<div class="top">
-				<div class="buttons">
+			<div class="flex flex-row flex-wrap justify-center items-center gap-3">
+				<div class="flex flex-col items-end justify-center gap-3 shrink-0">
 					<Button icon="front_hand" @click="playPicked">Play card</Button>
 					<Button icon="undo" @click="returnToHand">Clear picked</Button>
 				</div>
-				<CardContainer class="contents" :list="picked" listName="picked"></CardContainer>
+				<CardContainer class="shrink-0" :list="picked" listName="picked"></CardContainer>
 			</div>
-			<CardContainer :list="hand" listName="hand"></CardContainer>
+			<CardContainer class="my-2" :list="hand" listName="hand"></CardContainer>
 		</vue-droppable>
 	</template>
 </template>
-
-<style scoped>
-.top {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: center;
-	flex-wrap: wrap;
-
-	gap: 10px
-}
-
-.top > * {
-	flex-shrink: 0;
-}
-
-.buttons {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-end;
-	justify-content: center;
-	gap: 10px;
-}
-
-.contents {
-	display: contents;
-}
-
-.cant-play {
-	background: white;
-	padding: 10px;
-	border-radius: 10px;
-	text-align: center;
-	margin: 16px;
-}
-</style>./infrastructure/Button.vue

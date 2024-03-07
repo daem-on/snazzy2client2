@@ -23,8 +23,8 @@ const statusIcons: Record<PlayerStatus, string> = {
 </script>
 
 <template>
-	<ul>
-		<li v-for="[id, player] in displayed" :title="id.toString()" :key="id">
+	<ul class="flex flex-row flex-nowrap justify-start items-center w-full overflow-x-auto gap-3">
+		<li v-for="[id, player] in displayed" :title="id.toString()" :key="id" class="flex-shrink-0 bg-black text-white px-3 py-2 flex flex-row items-center gap-1">
 			<span>{{ player.username }}</span>
 			<span class="material-icons">
 				{{ statusIcons[player.status] }}
@@ -33,31 +33,3 @@ const statusIcons: Record<PlayerStatus, string> = {
 		</li>
 	</ul>
 </template>
-
-<style scoped>
-ul {
-	display: flex;
-	flex-direction: row;
-	justify-content: flex-start;
-	align-items: center;
-	width: 100%;
-	overflow-x: auto;
-	padding-top: 25px;
-	gap: 10px;
-	margin: 0;
-	padding: 0;
-}
-
-li {
-	list-style: none;
-	background-color: black;
-	color: white;
-	padding: 6px 10px;
-	flex-shrink: 0;
-	
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	gap: 4px;
-}
-</style>

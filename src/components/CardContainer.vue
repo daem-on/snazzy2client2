@@ -9,8 +9,13 @@ defineProps<{
 </script>
 
 <template>
-	<vue-draggable-container class="cardrow">
-		<div v-for="(entry, index) in list" class="dropzone" :list="listName" :key="index" :index="index"
+	<vue-draggable-container class="flex flex-row flex-wrap justify-center outline-none gap-4">
+		<div
+			v-for="(entry, index) in list"
+			class="dropzone w-32 h-44 outline-white-transparent outline-4 empty:outline-dashed -outline-offset-8"
+			:list="listName"
+			:key="index"
+			:index="index"
 			:class="{ 'draggable-dropzone--occupied': entry !== undefined }">
 
 			<div v-if="entry !== undefined" class="item" :cardId="entry">
@@ -22,24 +27,10 @@ defineProps<{
 </template>
 
 <style scoped>
-.dropzone {
-	width: 160px;
-	height: 200px;
-}
-
-.dropzone:empty {
-	outline: rgba(255, 255, 255, 0.445) 3px dashed;
-	outline-offset: -12px;
-}
-
 .draggable-source--is-dragging .card {
 	color: rgba(0,0,0,0);
 	background: none;
 	outline: white 3px dashed;
-}
-
-.card {
-	transition: transform 0.1s ease-in-out;
 }
 
 .draggable-mirror .card {
@@ -50,14 +41,4 @@ defineProps<{
 .draggable-mirror {
 	z-index: 2;
 }
-
-.cardrow {
-	display: flex;
-	flex-direction: row;
-	/* Bad for accessibility, good for looks */
-	outline: none;
-	flex-wrap: wrap;
-	justify-content: center;
-}
-
 </style>

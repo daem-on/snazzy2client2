@@ -39,54 +39,15 @@ function getText() {
 </script>
 
 <template>
-	<div class="card" :class="{ white: type === 'played', black: type === 'black', winner, hide }">
-		<p>
-			{{ getText() }}
-		</p>
+	<div
+		class="transition-transform w-32 h-44 rounded-lg p-3 overflow-hidden break-words whitespace-pre-line card"
+		:class="{
+			'bg-black text-white': type === 'black',
+			'bg-white': type !== 'black',
+			'outline-blue-500 outline-4 outline shadow-lg scale-110 z-10': winner,
+			'rotate-y-180': hide,
+			'w-44': type === 'played'
+		}">
+		<p class="my-1 leading-5">{{ getText() }}</p>
 	</div>
 </template>
-
-<style scoped>
-.card {
-	width: 120px;
-	height: 160px;
-	background-color: white;
-	border-radius: 10px;
-	margin: 8px;
-	padding: 12px;
-	overflow-wrap: break-word;
-	/* hyphens: auto; */
-	overflow-y: hidden;
-	white-space: pre-line;
-
-	transform: rotateY(0deg);
-	transition: transform 0.2s ease-in-out;
-	box-sizing: content-box;
-}
-
-.card p {
-	margin: 4px 0;
-}
-
-.black {
-	background-color: black;
-	color: white;
-}
-
-.white.card {
-	width: 160px;
-}
-
-.card.winner {
-	border: rgb(0, 140, 255) 3px solid;
-	transition: transform 0.1s;
-	box-shadow: 0px 10px 20px -12px rgba(0, 0, 0, 0.75);
-	transform: scale(1.2);
-	z-index: 3;
-}
-
-.hide {
-	transform: rotateY(180deg);
-}
-
-</style>

@@ -3,6 +3,7 @@ import { computed, reactive } from 'vue';
 import { PlayerStatus } from '../../server2/dtos';
 import Button from './infrastructure/Button.vue';
 import Card from './Card.vue';
+import BlockerDisplay from './BlockerDisplay.vue'
 
 const props = defineProps<{
 	hand: Set<number>,
@@ -34,76 +35,25 @@ function playCards() {
 </script>
 
 <template>
-	<div class="buttons row">
+	<div class="flex flex-row flex-nowrap justify-start items-center gap-3 m-3">
 		<Button icon="front_hand" @click="playCards" :disabled="picked.length !== props.cardsInRound">Play card</Button>
 		<Button icon="undo" @click="picked.length = 0" :disabled="picked.length === 0">Clear picked</Button>
 	</div>
-	<div class="hand row">
+	<div class="flex flex-row flex-nowrap justify-start items-center w-100 overflow-x-auto p-6 gap-4">
 		<Card
 			v-for="card in hand"
 			:key="card"
 			:id="card"
-			:class="{picked: picked.includes(card), disabled: cantPlay}"
+			class="flex-shrink-0"
+			:class="{
+				'shadow-lg -translate-y-5': picked.includes(card),
+				'opacity-60': cantPlay
+			}"
 			type="white"
 			@click="pick(card)"
 		/>
-		<div v-if="cantPlay" class="blocker">
-			<template v-if="status === PlayerStatus.Picking">
-				<div><span class="material-icons">event_seat</span></div>
-				You are the Card Czar.
-			</template>
-			<template v-if="status === PlayerStatus.Finished">
-				<div><span class="material-icons">done_all</span></div>
-				You have played this turn.
-			</template>
+		<div v-if="cantPlay" class="absolute w-full bg-white text-center p-5 size-6 rounded-lg h-auto left-0">
+			<BlockerDisplay :status="status" />
 		</div>
 	</div>
 </template>
-
-<style scoped>
-.row {
-	display: flex;
-	flex-direction: row;
-	justify-content: flex-start;
-	align-items: center;
-}
-
-.hand {
-	width: 100%;
-	overflow-x: auto;
-	padding-top: 25px;
-}
-
-.row .card {
-	flex-shrink: 0;
-}
-
-.card {
-	transition: transform 0.1s ease-out;
-}
-
-.disabled {
-	opacity: 0.6;
-}
-
-.picked {
-	transform: translate(0, -20px);
-	box-shadow: 0px 12px 29px -16px rgba(0,0,0,0.75);
-}
-
-.blocker {
-	position: absolute;
-	width: 100%;
-	box-sizing: border-box;
-	background-color: white;
-	text-align: center;
-	font-size: 1.5em;
-	padding: 20px;
-	border-radius: 10px;
-}
-
-.buttons {
-	gap: 10px;
-	margin: 10px;
-}
-</style>./infrastructure/Button.vue

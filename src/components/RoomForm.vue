@@ -49,7 +49,7 @@ const predefinedDecks: Map<string, string> = new Map([
 		<img class="inline size-11" :src="logoUrl" alt="Logo">
 		Snazzy
 	</h2>
-	<div class="room-options">
+	<div>
 		<form @submit="submit">
 			<Input type="text" v-model="options.username" required>
 				Username

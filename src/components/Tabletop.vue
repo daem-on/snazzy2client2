@@ -44,9 +44,9 @@ function pickCard(index: number) {
 </script>
 
 <template>
-	<div id="tabletop" class="cardrow">
-		<Card v-if="state.call != undefined" :id="state.call" type="black" />
-		<div v-if="state.revealedResponses?.length" class="innerrow">
+	<div id="tabletop" class="flex flex-row flex-nowrap justify-start outline-none overflow-x-auto gap-4 flex-shrink-0 px-7 py-5 max-w-full">
+		<Card class="flex-shrink-0" v-if="state.call != undefined" :id="state.call" type="black" />
+		<div v-if="state.revealedResponses?.length" class="flex-shrink-0 flex flex-row gap-4">
 			<Card
 				v-for="(response, index) in state.revealedResponses"
 				class="white card"
@@ -61,27 +61,3 @@ function pickCard(index: number) {
 		</div>
 	</div>
 </template>
-
-<style scoped>
-.cardrow {
-	display: flex;
-	flex-direction: row;
-	/* Bad for accessibility, good for looks */
-	outline: none;
-	flex-wrap: nowrap;
-	justify-content: flex-start;
-	overflow-x: auto;
-}
-
-.cardrow div {
-	flex-shrink: 0;
-}
-
-#tabletop {
-	padding: 30px 20px;
-}
-
-.cardrow .innerrow {
-	display: contents;
-}
-</style>

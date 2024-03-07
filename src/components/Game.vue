@@ -154,15 +154,15 @@ onBeforeUnmount(() => ws.value?.close());
 
 <template>
 	<template v-if="!started">
-		<div class="column">
-			<div class="waiting">
-				<h2>
-					<img :src="logoUrl" alt="Logo">
+		<div class="flex flex-col items-center m-3 gap-3">
+			<div class="bg-white p-8 rounded-lg">
+				<h2 class="text-4xl text-center mb-3">
+					<img class="inline size-11" :src="logoUrl" alt="Logo">
 					Snazzy.
 				</h2>
-				<p>The game has not started yet.</p>
+				<p class="my-2">The game has not started yet.</p>
 				<ul>
-					<li v-for="{ status, username } in state?.players" :key="username">
+					<li v-for="{ status, username } in state?.players" :key="username" class="border-t border-black py-2">
 						{{ username }}
 						<span v-if="status === PlayerStatus.Disconnected">t/o</span>
 					</li>
@@ -172,60 +172,19 @@ onBeforeUnmount(() => ws.value?.close());
 		</div>
 	</template>
 	<template v-else>
-		<div class="margin-10">
+		<div class="m-3">
 			<PlayerList v-if="state != null" :state="state" />
 		</div>
 
-		<div v-if="deckSync && state" class="center">
+		<div v-if="deckSync && state" class="flex justify-center">
 			<Tabletop :my-status="myStatus" :state="state" @pick-card="pickCard" />
 		</div>
 		<div v-if="deckSync">
 			<SimpleHandView v-if="useSimpleView" :cards-in-round="cardsInRound" :status="myStatus" :hand="hand" @play="playCard"></SimpleHandView>
 			<HandView v-else :cards-in-round="cardsInRound" :status="myStatus" :hand="hand" @play="playCard"></HandView>
 		</div>
-		<div class="center margin-10">
+		<div class="flex justify-center m-3">
 			<Button icon="autorenew" @click="useSimpleView = !useSimpleView">Switch view</Button>
 		</div>
 	</template>
 </template>
-
-<style scoped>
-.margin-10 {
-	margin: 10px;
-}
-
-.center {
-	display: flex;
-	justify-content: center;
-}
-
-.column {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	margin: 10px;
-	gap: 10px;
-}
-
-.waiting {
-	background-color: white;
-	padding: 2em;
-	border-radius: 10px;
-}
-
-.waiting h2 {
-	margin: 6px 0;
-}
-
-.waiting ul {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.waiting li {
-	border-top: 1px solid black;
-	padding: 4px 0;
-}
-</style>
-./infrastructure/Button.vue
