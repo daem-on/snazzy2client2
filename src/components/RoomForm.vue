@@ -2,7 +2,7 @@
 import { reactive } from 'vue';
 import Button from './infrastructure/Button.vue';
 import Input from './infrastructure/Input.vue';
-import logoUrl from "@/assets/cards-logo.svg";
+import CardsLogo from './infrastructure/CardsLogo.vue'
 
 const emit = defineEmits<{
 	(e: "submit", options: RoomOptions): void
@@ -46,8 +46,7 @@ const predefinedDecks: Map<string, string> = new Map([
 
 <template>
 	<h2 class="text-4xl text-center mb-3">
-		<img class="inline size-11" :src="logoUrl" alt="Logo">
-		Snazzy
+		<CardsLogo />
 	</h2>
 	<div>
 		<form @submit="submit">
@@ -61,15 +60,15 @@ const predefinedDecks: Map<string, string> = new Map([
 				Deck URL
 			</Input>
 			<div class="flex flex-row gap-2 my-2">
-				<button class="p-2 rounded-lg bg-gray-100 border-2 border-gray-300" type="button" v-for="[name, url] in predefinedDecks" @click="options.deck = url" :key="name">
+				<Button filled type="button" v-for="[name, url] in predefinedDecks" @click="options.deck = url" :key="name">
 					{{ name }}
-				</button>
+				</Button>
 			</div>
 			<Input type="number" v-model.number="options.dealNumber" placeholder="7" min="1">
 				Deal Number
 			</Input>
 			<div class="flex justify-center">
-				<Button icon="login" black type="submit">Join</Button>
+				<Button icon="login" filled type="submit">Join</Button>
 			</div>
 		</form>
 	</div>

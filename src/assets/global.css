@@ -36,3 +36,14 @@ body {
 	position: relative;
 	z-index: 2;
 }
+
+@media (prefers-color-scheme: dark) {
+	html {
+		background-color: #6d5241;
+		background-blend-mode: overlay;
+	}
+
+	.vignette {
+		background: radial-gradient(circle at center, transparent 30%, rgb(31 8 0 / 40%) 100%);
+	}
+}

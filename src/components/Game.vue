@@ -8,9 +8,9 @@ import PlayerList from "./PlayerList.vue";
 import SimpleHandView from "./SimpleHandView.vue";
 import Tabletop from "./Tabletop.vue";
 import { fetchDeck } from "@/fetchDeck.js";
-import logoUrl from "@/assets/cards-logo.svg";
 import type { RoomOptions } from "./RoomForm.vue";
 import { join } from "@/connect";
+import CardsLogo from "./infrastructure/CardsLogo.vue";
 
 export type CardType = { id: number, text: string };
 
@@ -157,8 +157,7 @@ onBeforeUnmount(() => ws.value?.close());
 		<div class="flex flex-col items-center m-3 gap-3">
 			<div class="bg-white p-8 rounded-lg">
 				<h2 class="text-4xl text-center mb-3">
-					<img class="inline size-11" :src="logoUrl" alt="Logo">
-					Snazzy.
+					<CardsLogo />
 				</h2>
 				<p class="my-2">The game has not started yet.</p>
 				<ul>
