@@ -1,4 +1,4 @@
-import type { DeckClientState } from "server2/dtos";
+import type { DeckClientState } from "../server2/dtos";
 
 // Should be the same as /server2/handlers/game.ts#fetchAndValidateDeck
 export async function fetchDeck(url: string): Promise<DeckClientState> {

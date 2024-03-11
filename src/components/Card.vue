@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DeckClientState } from "server2/dtos";
+import type { DeckClientState } from "../../server2/dtos";
 import { inject, type Ref } from "vue";
 
 const props = defineProps<{
