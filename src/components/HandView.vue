@@ -130,9 +130,9 @@ function playPicked() {
 					<Button icon="front_hand" @click="playPicked">Play card</Button>
 					<Button icon="undo" @click="returnToHand">Clear picked</Button>
 				</div>
-				<CardContainer class="shrink-0" :list="picked" listName="picked"></CardContainer>
+				<CardContainer class="shrink-0" :list="picked" listName="picked" :active="props.status !== PlayerStatus.Picking"></CardContainer>
 			</div>
-			<CardContainer class="my-2" :list="hand" listName="hand"></CardContainer>
+			<CardContainer class="my-2" :list="hand" listName="hand" :active="props.status !== PlayerStatus.Picking"></CardContainer>
 		</vue-droppable>
 	</template>
 </template>

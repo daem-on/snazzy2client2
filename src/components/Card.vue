@@ -7,7 +7,8 @@ const props = defineProps<{
 	id: number,
 	winner?: boolean,
 	interpolateIds?: number[],
-	hide?: boolean
+	hide?: boolean,
+	interactive?: boolean,
 }>();
 
 const deckSync: Ref<DeckClientState | undefined> = inject("deckSync")!;
@@ -40,13 +41,14 @@ function getText() {
 
 <template>
 	<div
-		class="transition-transform w-32 h-44 rounded-lg p-3 overflow-hidden break-words whitespace-pre-line card"
+		class="transition-all w-32 h-44 rounded-lg p-3 overflow-hidden break-words whitespace-pre-line card"
 		:class="{
 			'bg-black text-white': type === 'black',
 			'bg-white': type !== 'black',
 			'outline-blue-500 outline-4 outline shadow-lg scale-110 z-10': winner,
 			'rotate-y-180': hide,
-			'w-44': type === 'played'
+			'w-44': type === 'played',
+			'hover:shadow-down cursor-grab': props.interactive,
 		}">
 		<p class="my-1 leading-5">{{ getText() }}</p>
 	</div>

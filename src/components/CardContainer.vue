@@ -3,7 +3,8 @@ import Card from "./Card.vue";
 
 defineProps<{
 	list: (number | undefined)[],
-	listName: string
+	listName: string,
+	active: boolean,
 }>();
 
 </script>
@@ -19,7 +20,7 @@ defineProps<{
 			:class="{ 'draggable-dropzone--occupied': entry !== undefined }">
 
 			<div v-if="entry !== undefined" class="item" :cardId="entry">
-				<Card :id="entry" type="white" />
+				<Card :id="entry" type="white" :interactive="active" />
 			</div>
 
 		</div>
@@ -28,14 +29,16 @@ defineProps<{
 
 <style scoped>
 .draggable-source--is-dragging .card {
-	color: rgba(0,0,0,0);
+	color: transparent;
 	background: none;
+	box-shadow: none;
 	outline: white 3px dashed;
 }
 
 .draggable-mirror .card {
 	box-shadow: 0px 12px 29px -16px rgba(0,0,0,0.75);
 	transform: scale(1.2);
+	cursor: grabbing;
 }
 
 .draggable-mirror {
